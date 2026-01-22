@@ -876,13 +876,32 @@
                                     href="{{ asset('Backend/assets/pages/auth-lockscreen-basic.html') }}"><i
                                         class="mdi mdi-lock text-muted fs-16 align-middle me-1"></i> <span
                                         class="align-middle">Lock screen</span></a>
-                                <a class="dropdown-item"
-                                    href="{{ asset('Backend/assets/pages/auth-logout-basic.html') }}"><i
-                                        class="mdi mdi-logout text-muted fs-16 align-middle me-1"></i> <span
-                                        class="align-middle" data-key="t-logout">Logout</span></a>
+                                <a class="dropdown-item" href="{{ route('logout') }}">
+                                    <form method="POST" action="{{ route('logout') }}">
+                                        @csrf
+                                        <button type="submit" class="dropdown-item text-danger">
+                                            <i class="ri-logout-box-line align-middle me-1"></i> Logout
+                                        </button>
+                                    </form> <span class="align-middle" data-key="t-logout">Logout</span>
+                                </a>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </header>
+        {{-- <div class="dropdown d-inline-block">
+            <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown"
+                data-bs-toggle="dropdown">
+                {{ Auth::user()->name }}
+            </button>
+            <div class="dropdown-menu dropdown-menu-end">
+                <!-- Profile, Settings ইত্যাদি -->
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="dropdown-item text-danger">
+                        <i class="ri-logout-box-line align-middle me-1"></i> Logout
+                    </button>
+                </form>
+            </div>
+        </div> --}}
