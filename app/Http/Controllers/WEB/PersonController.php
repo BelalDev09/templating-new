@@ -10,19 +10,33 @@ use Illuminate\Support\Facades\Storage;
 
 class PersonController extends Controller
 {
-    public function edit()
+    /**
+     * Show profile dashboard
+     */
+    public function index()
+    {
+        return view('profile.index');
+    }
+
+    /**
+     * Show edit profile form
+     */
+    public function edit(Request $request)
     {
         return view('profile.edit', [
-            'user' => Auth::user()
+            'user' => $request->user()
         ]);
     }
 
+    /**
+     * Update user profile
+     */
     public function update(Request $request)
     {
-        $user = Auth::user();
+        $user = $request->user();
 
-        // Validation
-        $request->validate([
+        // Validate input
+        $validated = $request->validate([
             'first_name'   => 'required|string|max:100',
             'last_name'    => 'required|string|max:100',
             'email'        => 'required|email|unique:users,email,' . $user->id,
@@ -32,44 +46,46 @@ class PersonController extends Controller
             'zip_code'     => 'nullable|string|max:20',
             'designation'  => 'nullable|string|max:150',
             'website'      => 'nullable|url',
-            'joining_date' => 'nullable|date',
             'description'  => 'nullable|string',
             'skills'       => 'nullable|string',
             'avatar'       => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'cover_image'  => 'nullable|image|mimes:jpg,jpeg,png|max:4096',
         ]);
 
-        // Basic fields
-        $user->first_name  = $request->first_name;
-        $user->last_name   = $request->last_name;
-        $user->name        = $request->first_name . ' ' . $request->last_name;
-        $user->email       = $request->email;
-        $user->phone       = $request->phone;
-        $user->city        = $request->city;
-        $user->country     = $request->country;
-        $user->zip_code    = $request->zip_code;
-        $user->designation = $request->designation;
-        $user->website     = $request->website;
-        $user->joining_date = $request->joining_date;
-        $user->description = $request->description;
+        // Update basic fields
+        $user->fill([
+            'first_name'   => $validated['first_name'],
+            'last_name'    => $validated['last_name'],
+            'email'        => $validated['email'],
+            'phone'        => $validated['phone'] ?? null,
+            'city'         => $validated['city'] ?? null,
+            'country'      => $validated['country'] ?? null,
+            'zip_code'     => $validated['zip_code'] ?? null,
+            'designation'  => $validated['designation'] ?? null,
+            'website'      => $validated['website'] ?? null,
+            'description'  => $validated['description'] ?? null,
+        ]);
+        $user->name = $validated['first_name'] . ' ' . $validated['last_name'];
 
-        // Skills (textarea → JSON)
-        if ($request->skills) {
-            $skillsArray = array_filter(array_map('trim', explode("\n", $request->skills)));
-            $user->skills = json_encode($skillsArray);
+        // Update skills as JSON array
+        if (isset($validated['skills']) && !empty($validated['skills'])) {
+            $skills = array_filter(array_map('trim', preg_split('/\r\n|\r|\n/', $validated['skills'])));
+            $user->skills = json_encode($skills);
+        } else {
+            $user->skills = null;
         }
 
-        // Avatar Upload
+        // Handle avatar upload
         if ($request->hasFile('avatar')) {
-            if ($user->avatar) {
+            if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
                 Storage::disk('public')->delete($user->avatar);
             }
             $user->avatar = $request->file('avatar')->store('avatars', 'public');
         }
 
-        // Cover Image Upload
+        // Handle cover image upload
         if ($request->hasFile('cover_image')) {
-            if ($user->cover_image) {
+            if ($user->cover_image && Storage::disk('public')->exists($user->cover_image)) {
                 Storage::disk('public')->delete($user->cover_image);
             }
             $user->cover_image = $request->file('cover_image')->store('covers', 'public');
@@ -77,10 +93,22 @@ class PersonController extends Controller
 
         $user->save();
 
-        return redirect()
-            ->route('profile.edit')
-            ->with('success', 'Profile updated successfully!');
+        // Respond with JSON if AJAX request (for live preview)
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Profile updated successfully!',
+                'avatar_url' => $user->avatar ? asset('storage/' . $user->avatar) : null,
+                'cover_url' => $user->cover_image ? asset('storage/' . $user->cover_image) : null,
+            ]);
+        }
+
+        return redirect()->route('profile.edit')->with('status', 'profile-updated');
     }
+
+    /**
+     * Update user password
+     */
     public function updatePassword(Request $request)
     {
         $request->validate([
@@ -88,17 +116,19 @@ class PersonController extends Controller
             'password' => 'required|min:8|confirmed',
         ]);
 
-        $user = auth()->user();
+        $user = $request->user();
 
+        // Check if current password matches
         if (!Hash::check($request->current_password, $user->password)) {
             return back()->withErrors([
-                'current_password' => 'Current password is incorrect'
+                'current_password' => 'Current password is incorrect.',
             ]);
         }
 
+        // Update password
         $user->password = Hash::make($request->password);
         $user->save();
 
-        return back()->with('success', 'Password updated successfully!');
+        return back()->with('status', 'password-updated');
     }
 }

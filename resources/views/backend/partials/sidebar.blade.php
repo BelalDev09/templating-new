@@ -87,6 +87,13 @@
                 <span>Profile</span>
             </a>
         </li>
+        {{-- PROFILE --}}
+        {{-- <li class="nav-item">
+            <a href="{{ route('profile.index') }}" class="nav-link">
+                <i class="ri-user-line"></i>
+                <span>Profile show</span>
+            </a>
+        </li> --}}
 
         {{-- COMPONENTS --}}
         <li class="menu-title">

@@ -16,6 +16,7 @@ Route::get('/dashboard', function () {
 Route::middleware('auth')->group(function () {
 
     // Profile view (edit page) - GET
+    Route::get('/profile', [PersonController::class, 'index'])->name('profile.index');
     Route::get('/profile', [PersonController::class, 'edit'])->name('profile.edit');
 
     // Profile update - PATCH
