@@ -9,6 +9,8 @@
     <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
     <meta content="Themesbrand" name="author" />
 
+    @yield('head')
+
     <link rel="shortcut icon" href="{{ asset('Backend/assets/images/favicon.ico') }}">
 
     <!-- CSS Libraries -->
@@ -21,11 +23,11 @@
     <link href="{{ asset('Backend/assets/css/app.min.css') }}" rel="stylesheet" />
     <link href="{{ asset('Backend/assets/css/custom.min.css') }}" rel="stylesheet" />
 
-    <!-- Page Specific Styles -->
-    @stack('styles')
 
     <!-- Layout JS -->
     <script src="{{ asset('Backend/assets/js/layout.js') }}"></script>
+    <!-- Page Specific Styles -->
+    @stack('styles')
 </head>
 
 <body>
@@ -93,7 +95,8 @@
             <div class="spinner-border text-primary avatar-sm"></div>
         </div>
     </div>
-
+    <!-- Core JS -->
+    <script src="{{ asset('Backend/assets/js/app.js') }}"></script>
     <!-- JS Libraries -->
     <script src="{{ asset('Backend/assets/libs/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('Backend/assets/libs/simplebar/simplebar.min.js') }}"></script>
@@ -105,9 +108,6 @@
     <script src="{{ asset('Backend/assets/libs/jsvectormap/jsvectormap.min.js') }}"></script>
     <script src="{{ asset('Backend/assets/libs/jsvectormap/maps/world-merc.js') }}"></script>
     <script src="{{ asset('Backend/assets/libs/swiper/swiper-bundle.min.js') }}"></script>
-
-    <!-- Core JS -->
-    <script src="{{ asset('Backend/assets/js/app.js') }}"></script>
 
     <!-- Page Specific Scripts -->
     @stack('scripts')
