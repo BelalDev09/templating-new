@@ -831,19 +831,33 @@
                         </div>
 
                         <div class="dropdown ms-sm-3 header-item topbar-user">
+                            @php
+                                $user = Auth::user();
+                            @endphp
+
                             <button type="button" class="btn material-shadow-none" id="page-header-user-dropdown"
                                 data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+
                                 <span class="d-flex align-items-center">
+                                    {{-- Avatar --}}
                                     <img class="rounded-circle header-profile-user"
-                                        src="{{ asset('Backend/assets/images/users/avatar-1.jpg') }}"
-                                        alt="Header Avatar">
+                                        src="{{ $user->avatar ? asset('storage/' . $user->avatar) : asset('backend/assets/images/users/avatar-1.jpg') }}"
+                                        alt="User Avatar">
+
                                     <span class="text-start ms-xl-2">
-                                        <span class="d-none d-xl-inline-block ms-1 fw-medium user-name-text">Anna
-                                            Adame</span>
-                                        <span class="d-none d-xl-block ms-1 fs-12 user-name-sub-text">Founder</span>
+                                        {{-- Name --}}
+                                        <span class="d-none d-xl-inline-block ms-1 fw-medium user-name-text">
+                                            {{ $user->name }}
+                                        </span>
+
+                                        {{-- Role / Designation --}}
+                                        <span class="d-none d-xl-block ms-1 fs-12 user-name-sub-text">
+                                            {{ ucfirst($user->role ?? 'User') }}
+                                        </span>
                                     </span>
                                 </span>
                             </button>
+
                             <div class="dropdown-menu dropdown-menu-end">
                                 <!-- item-->
                                 <h6 class="dropdown-header">Welcome Anna!</h6>
@@ -882,7 +896,7 @@
                                         <button type="submit" class="dropdown-item text-danger">
                                             <i class="ri-logout-box-line align-middle me-1"></i> Logout
                                         </button>
-                                    </form> <span class="align-middle" data-key="t-logout">Logout</span>
+                                    </form>
                                 </a>
                             </div>
                         </div>
@@ -890,18 +904,4 @@
                 </div>
             </div>
         </header>
-        {{-- <div class="dropdown d-inline-block">
-            <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown"
-                data-bs-toggle="dropdown">
-                {{ Auth::user()->name }}
-            </button>
-            <div class="dropdown-menu dropdown-menu-end">
-                <!-- Profile, Settings ইত্যাদি -->
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit" class="dropdown-item text-danger">
-                        <i class="ri-logout-box-line align-middle me-1"></i> Logout
-                    </button>
-                </form>
-            </div>
-        </div> --}}
+        <!-- End Header -->

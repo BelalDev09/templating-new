@@ -2,10 +2,6 @@
 
 @section('title', 'Edit Profile')
 
-@section('head')
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-@endsection
-
 @section('content')
     <div class="page-content">
         <div class="container-fluid">
@@ -27,9 +23,11 @@
                 <div class="position-relative mb-4">
                     {{-- Cover --}}
                     @if (!empty($user->cover_image))
-                        <img id="coverPreview" src="{{ asset('storage/' . $user->cover_image) }}" class="w-100 rounded" style="height:250px;object-fit:cover">
+                        <img id="coverPreview" src="{{ asset('storage/' . $user->cover_image) }}" class="w-100 rounded"
+                            style="height:250px;object-fit:cover">
                     @else
-                        <img id="coverPreview" src="" class="w-100 rounded d-none" style="height:250px;object-fit:cover">
+                        <img id="coverPreview" src="" class="w-100 rounded d-none"
+                            style="height:250px;object-fit:cover">
                         <div id="coverFallback" class="bg-primary rounded" style="height:250px;"></div>
                     @endif
 
@@ -47,7 +45,7 @@
                                 <img id="avatarPreview" src="" class="w-100 h-100 d-none">
                                 <div id="avatarFallback" class="d-flex align-items-center justify-content-center h-100 fs-1"
                                     style="width:120px;height:120px;">
-                                    {{ strtoupper(substr($user->first_name ?? $user->name ?? '', 0, 1)) }}
+                                    {{ strtoupper(substr($user->first_name ?? ($user->name ?? ''), 0, 1)) }}
                                 </div>
                             @endif
                         </div>
@@ -99,8 +97,9 @@
                                         @enderror
                                     </div>
                                     <div class="col-md-6">
-                                        <input type="text" name="phone" class="form-control @error('phone') is-invalid @enderror"
-                                            placeholder="Phone" value="{{ old('phone', $user->phone) }}">
+                                        <input type="text" name="phone"
+                                            class="form-control @error('phone') is-invalid @enderror" placeholder="Phone"
+                                            value="{{ old('phone', $user->phone) }}">
                                         @error('phone')
                                             <span class="invalid-feedback" role="alert">{{ $message }}</span>
                                         @enderror
@@ -114,14 +113,16 @@
                                         @enderror
                                     </div>
                                     <div class="col-md-4">
-                                        <input type="text" name="city" class="form-control @error('city') is-invalid @enderror"
-                                            placeholder="City" value="{{ old('city', $user->city) }}">
+                                        <input type="text" name="city"
+                                            class="form-control @error('city') is-invalid @enderror" placeholder="City"
+                                            value="{{ old('city', $user->city) }}">
                                         @error('city')
                                             <span class="invalid-feedback" role="alert">{{ $message }}</span>
                                         @enderror
                                     </div>
                                     <div class="col-md-4">
-                                        <input type="text" name="country" class="form-control @error('country') is-invalid @enderror"
+                                        <input type="text" name="country"
+                                            class="form-control @error('country') is-invalid @enderror"
                                             placeholder="Country" value="{{ old('country', $user->country) }}">
                                         @error('country')
                                             <span class="invalid-feedback" role="alert">{{ $message }}</span>
@@ -154,7 +155,7 @@
                                     </div>
                                     <div class="col-12">
                                         <textarea name="skills" class="form-control @error('skills') is-invalid @enderror" rows="3"
-                                            placeholder="Skills (one per line)">{{ old('skills', is_array($user->skills ?? null) ? implode("\n", $user->skills) : ($user->skills ?? '')) }}</textarea>
+                                            placeholder="Skills (one per line)">{{ old('skills', is_array($user->skills ?? null) ? implode("\n", $user->skills) : $user->skills ?? '') }}</textarea>
                                         @error('skills')
                                             <span class="invalid-feedback" role="alert">{{ $message }}</span>
                                         @enderror
@@ -169,6 +170,35 @@
                                 </div>
 
                                 <button type="submit" class="btn btn-primary mt-3">Update Profile</button>
+                            </div>
+                            {{-- PASSWORD TAB --}}
+                            <div class="tab-pane fade" id="password" role="tabpanel" aria-labelledby="password-tab">
+                                {{-- Separate form for password --}}
+                                <form method="POST" action="{{ route('profile.password') }}" id="changePasswordForm"
+                                    autocomplete="off">
+                                    @csrf
+                                    <div class="mb-3">
+                                        <input type="password" name="current_password"
+                                            class="form-control @error('current_password', 'passwordChange') is-invalid @enderror"
+                                            placeholder="Current Password" autocomplete="current-password">
+                                        @error('current_password', 'passwordChange')
+                                            <span class="invalid-feedback" role="alert">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                    <div class="mb-3">
+                                        <input type="password" name="password"
+                                            class="form-control @error('password', 'passwordChange') is-invalid @enderror"
+                                            placeholder="New Password" autocomplete="new-password">
+                                        @error('password', 'passwordChange')
+                                            <span class="invalid-feedback" role="alert">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                    <div class="mb-3">
+                                        <input type="password" name="password_confirmation" class="form-control"
+                                            placeholder="Confirm Password" autocomplete="new-password">
+                                    </div>
+                                    <button class="btn btn-warning" type="submit">Change Password</button>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -193,9 +223,13 @@
                     el.classList.remove('alert-danger');
                     el.classList.add('alert-success');
                 }
-                el.scrollIntoView({behavior: "smooth", block: "center"});
+                el.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center"
+                });
             }
         }
+
         function hideMessage(id) {
             const el = document.getElementById(id);
             if (el) {
@@ -258,31 +292,36 @@
                     fetch(profileForm.action, {
                         method: "POST",
                         headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                .content,
                             'X-Requested-With': 'XMLHttpRequest'
                         },
                         body: formData
                     }).then(async (response) => {
                         if (response.ok) {
                             let data = {};
-                            try { data = await response.json(); } catch { }
+                            try {
+                                data = await response.json();
+                            } catch {}
                             if (data.status && data.status === 'profile-updated') {
                                 showMessage('successMsg', 'Profile updated successfully.');
                             } else {
                                 showMessage('successMsg', 'Profile updated successfully.');
                             }
-                        } else if(response.status === 422) {
+                        } else if (response.status === 422) {
                             // Validation error
                             const data = await response.json();
                             let errorText = '';
-                            if(data.errors) {
+                            if (data.errors) {
                                 errorText = Object.values(data.errors).flat().join('<br>');
                             }
                             showMessage('errorMsg', errorText || 'Validation failed.', true);
                         } else {
-                            showMessage('errorMsg', 'Profile update failed. Please try again. Server error: ' + response.status, true);
+                            showMessage('errorMsg',
+                                'Profile update failed. Please try again. Server error: ' +
+                                response.status, true);
                         }
-                    }).catch(function(err){
+                    }).catch(function(err) {
                         showMessage('errorMsg', 'Profile update failed. Please try again.', true);
                     }).finally(function() {
                         if (btn) {
@@ -296,7 +335,7 @@
             // Password form submit via AJAX
             const passwordForm = document.getElementById('changePasswordForm');
             if (passwordForm) {
-                passwordForm.addEventListener('submit', function(e){
+                passwordForm.addEventListener('submit', function(e) {
                     e.preventDefault();
 
                     hideMessage('successMsg');
@@ -313,31 +352,36 @@
                     fetch(passwordForm.action, {
                         method: "POST",
                         headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                .content,
                             'X-Requested-With': 'XMLHttpRequest'
                         },
                         body: formData
                     }).then(async (response) => {
                         if (response.ok) {
                             let data = {};
-                            try { data = await response.json(); } catch { }
+                            try {
+                                data = await response.json();
+                            } catch {}
                             if (data.status && data.status === 'password-updated') {
                                 showMessage('successMsg', 'Password updated successfully.');
                             } else {
                                 showMessage('successMsg', 'Password updated successfully.');
                             }
-                        } else if(response.status === 422) {
+                        } else if (response.status === 422) {
                             // Validation error
                             const data = await response.json();
                             let errorText = '';
-                            if(data.errors) {
+                            if (data.errors) {
                                 errorText = Object.values(data.errors).flat().join('<br>');
                             }
                             showMessage('errorMsg', errorText || 'Validation failed.', true);
                         } else {
-                            showMessage('errorMsg', 'Password update failed. Please try again. Server error: ' + response.status, true);
+                            showMessage('errorMsg',
+                                'Password update failed. Please try again. Server error: ' +
+                                response.status, true);
                         }
-                    }).catch(function(err){
+                    }).catch(function(err) {
                         showMessage('errorMsg', 'Password update failed. Please try again.', true);
                     }).finally(function() {
                         if (btn) {
